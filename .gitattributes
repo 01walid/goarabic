@@ -1,0 +1,22 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+* text eof=lf
+
+# Extensions that should be treated as binary files
+*.png     binary
+*.jepg    binary
+*.jpg     binary
+*.gif     binary
+
+*.ttf     binary
+*.eot     binary
+*.otf     binary
+*.woff    binary
+*.woff2   binary
+
+*.xls     binary
+*.xlsx    binary
+*.doc     binary
+*.docx    binary
+*.odf     binary
+*.odt     binary
