@@ -45,7 +45,6 @@ func RemoveTashkeel(s string) string {
 
 // RemoveTatweel returns its argument as rune-wise string without Arabic Tatweel character.
 func RemoveTatweel(s string) string {
-
 	r := make([]rune, 0, len(s))
 
 	for _, value := range s {
@@ -58,7 +57,6 @@ func RemoveTatweel(s string) string {
 	return string(r)
 }
 func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
-
 	glyph := currentChar
 	previousIn := false // in the Arabic Alphabet or not
 	nextIn := false     // in the Arabic Alphabet or not
@@ -142,36 +140,31 @@ func getHarf(char rune) Harf {
 
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
+	var (
+		prev, next rune
+		newText    []rune
+	)
 
-	r := []rune(text)
+	runes := []rune(text)
+	length := len(runes)
 
-	length := len(r)
-
-	newText := make([]rune, 0, length)
-
-	var previousChar, currentChar, nextChar rune
-
-	for i := 0; i < length; i++ {
-
-		// get the current char
-		currentChar = r[i]
-
+	for i, current := range runes {
 		// get the previous char
 		if (i - 1) < 0 {
-			previousChar = 0
+			prev = 0
 		} else {
-			previousChar = r[i-1]
+			prev = runes[i-1]
 		}
 
 		// get the next char
 		if (i + 1) <= length-1 {
-			nextChar = r[i+1]
+			next = runes[i+1]
 		} else {
-			nextChar = 0
+			next = 0
 		}
 
 		// get the current char representation or return the same if unnecessary
-		glyph := getCharGlyph(previousChar, currentChar, nextChar)
+		glyph := getCharGlyph(prev, current, next)
 
 		// append the new char representation to the newText
 		newText = append(newText, glyph)
