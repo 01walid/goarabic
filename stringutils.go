@@ -140,11 +140,9 @@ func getHarf(char rune) Harf {
 
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
-	var (
-		prev, next rune
-		newText    []rune
-	)
+	var prev, next rune
 
+	newText := make([]rune, 0, length)
 	runes := []rune(text)
 	length := len(runes)
 
