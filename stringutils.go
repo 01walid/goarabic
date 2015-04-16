@@ -142,9 +142,9 @@ func getHarf(char rune) Harf {
 func ToGlyph(text string) string {
 	var prev, next rune
 
-	newText := make([]rune, 0, length)
 	runes := []rune(text)
 	length := len(runes)
+	newText := make([]rune, 0, length)
 
 	for i, current := range runes {
 		// get the previous char
