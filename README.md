@@ -1,6 +1,6 @@
 
 # GoArabic
-[![GoDoc](https://godoc.org/github.com/01walid/goarabic?status.svg)](https://godoc.org/github.com/01walid/goarabic)
+[![Build Status](https://travis-ci.org/01walid/goarabic.svg)](https://travis-ci.org/01walid/goarabic) [![Build Status](https://drone.io/github.com/01walid/goarabic/status.png)](https://drone.io/github.com/01walid/goarabic/latest) [![GoDoc](https://godoc.org/github.com/01walid/goarabic?status.svg)](https://godoc.org/github.com/01walid/goarabic)
 
 A Go Lang package for dealing with Arabic text.
 
