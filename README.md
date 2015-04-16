@@ -1,4 +1,7 @@
+
 # GoArabic
+[![GoDoc](https://godoc.org/github.com/01walid/goarabic?status.svg)](https://godoc.org/github.com/01walid/goarabic)
+
 A Go Lang package for dealing with Arabic text.
 
 This is an initial work on a set of Go functions developed to enhance Arabic web applications.
@@ -50,7 +53,7 @@ func main() {
 
 ```
 ## Documentation
-Package docs available on [gopkgdoc]()
+Package docs available on [gopkgdoc](https://godoc.org/github.com/01walid/goarabic).
 
 ## Contributing
 Contributions are greatly appreciated. Please fork this repository, make your changes, and open a pull request. More test cases and considerations might be needed, you can run tests using `go test` for the existing functionalities.
