@@ -378,7 +378,7 @@ var alphabet = []Harf{
 	HEH,
 	WAW,
 	YEH,
-	ARABIYEH,
+	ARABICYEH,
 	ALEF_MAKSURA,
 	TATWEEL,
 	LAM_ALEF,
