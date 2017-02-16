@@ -56,6 +56,7 @@ func RemoveTatweel(s string) string {
 
 	return string(r)
 }
+
 func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 	glyph := currentChar
 	previousIn := false // in the Arabic Alphabet or not
@@ -138,8 +139,27 @@ func getHarf(char rune) Harf {
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
+//removeAllNonAlphabetChars deletes all character which are not included in Arabic Alphabet
+func removeAllNonArabicChars(text string) string {
+	runes := []rune(text)
+	newText := []rune{}
+	for _, current := range runes {
+		inAlphabet := false
+		for _, s := range alphabet {
+			if s.equals(current) {
+				inAlphabet = true
+			}
+		}
+		if inAlphabet {
+			newText = append(newText, current)
+		}
+	}
+	return string(newText)
+}
+
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
+	text = removeAllNonArabicChars(text)
 	var prev, next rune
 
 	runes := []rune(text)
