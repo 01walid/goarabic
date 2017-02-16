@@ -159,7 +159,7 @@ func removeAllNonArabicChars(text string) string {
 
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
-	text = removeAllNonArabicChars(text)
+	//text = removeAllNonArabicChars(text)
 	var prev, next rune
 
 	runes := []rune(text)
