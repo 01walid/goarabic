@@ -139,8 +139,8 @@ func getHarf(char rune) Harf {
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
-//removeAllNonAlphabetChars deletes all character which are not included in Arabic Alphabet
-func removeAllNonArabicChars(text string) string {
+//RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
+func RemoveAllNonArabicChars(text string) string {
 	runes := []rune(text)
 	newText := []rune{}
 	for _, current := range runes {
@@ -159,7 +159,6 @@ func removeAllNonArabicChars(text string) string {
 
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
-	//text = removeAllNonArabicChars(text)
 	var prev, next rune
 
 	runes := []rune(text)
