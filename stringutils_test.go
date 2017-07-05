@@ -9,6 +9,7 @@ func TestReverse(t *testing.T) {
 		in, want string
 	}{
 		{"Hello, world", "dlrow ,olleH"},
+		{"Crowdbotics", "scitobdworC"},
 		{"Hello, 世界", "界世 ,olleH"},
 		{"نص عربي", "يبرع صن"},
 		{"نَصٌ عَربِيٌّ", "ٌّيِبرَع ٌصَن"},
