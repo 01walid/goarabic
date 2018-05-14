@@ -79,7 +79,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Beggining
 				}
@@ -93,7 +93,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn { // final (because the next is not in the Arabic Alphabet)
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Isolated
 				}
@@ -188,6 +188,11 @@ func ToGlyph(text string) string {
 	}
 
 	return string(newText)
+}
+
+// To-DO
+func Normalise(s string) string {
+
 }
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
