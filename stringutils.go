@@ -190,10 +190,7 @@ func ToGlyph(text string) string {
 	return string(newText)
 }
 
-// To-DO
-func Normalise(s string) string {
-
-}
+//testing first commit by adding new comment//
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
 /*
