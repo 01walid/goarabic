@@ -1,6 +1,11 @@
 // Package goarabic contains utility functions for working with Arabic strings.
 package goarabic
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Reverse returns its argument string reversed rune-wise left to right.
 func Reverse(s string) string {
 	r := []rune(s)
@@ -190,7 +195,35 @@ func ToGlyph(text string) string {
 	return string(newText)
 }
 
-//testing first commit by adding new comment//
+//Convert large number to its abbreviation in Arabic.
+//Abbreviate to billons, millions, and thousands. Otherwise number will be returned unedited.
+func AbbreviateNumber(lint int) string {
+	// Ported from https://stackoverflow.com/a/14994860
+	nTxt := ""
+	if lint >= 1000000000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000000000)
+		return strings.Replace(nTxt, ".0", "", -1) + " مليار"
+	} else if lint >= 1000000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000000)
+		return strings.Replace(nTxt, ".0", "", -1) + " مليون"
+	} else if lint >= 1000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000)
+		return strings.Replace(nTxt, ".0", "", -1) + " ألف"
+	}
+	return fmt.Sprintf("%d", lint)
+}
+
+// Switch between Arabic and English Numeral systems. Pass true to switch to Arabic.
+// If text contains other non numeral characters, it will be left intact.
+func SwitchNumeral(text string, toArabic bool) string {
+	if toArabic {
+		replaceEnglishN := strings.NewReplacer("1", "١", "2", "٢", "3", "٣", "4", "٤", "5", "٥", "6", "٦", "7", "٧", "8", "٨", "9", "٩", "0", "٠")
+		return replaceEnglishN.Replace(text)
+	} else {
+		replaceArabicN := strings.NewReplacer("١", "1", "٢", "2", "٣", "3", "٤", "4", "٥", "5", "٦", "6", "٧", "7", "٨", "8", "٩", "9", "٠", "0")
+		return replaceArabicN.Replace(text)
+	}
+}
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
 /*
