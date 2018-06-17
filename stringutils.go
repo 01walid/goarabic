@@ -3,6 +3,7 @@ package goarabic
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -223,6 +224,32 @@ func SwitchNumeral(text string, toArabic bool) string {
 		replaceArabicN := strings.NewReplacer("١", "1", "٢", "2", "٣", "3", "٤", "4", "٥", "5", "٦", "6", "٧", "7", "٨", "8", "٩", "9", "٠", "0")
 		return replaceArabicN.Replace(text)
 	}
+}
+
+//General function to normalize Arabic text
+/*
+	- switch english to arabic numerals.
+	- remove tashkeel and tatweel.
+	- trim all leading and trailing white spaces.
+	- switch any "أإآ"" to "ا".
+	- switch any "ة" to "ه".
+*/
+func Normalize(text string) string {
+	trimmed := strings.TrimSpace(RemoveTashkeel(RemoveTatweel(SwitchNumeral(text, true))))
+	Normalizer := strings.NewReplacer("أ", "ا", "إ", "ا", "آ", "ا", "ة", "ه")
+	return Normalizer.Replace(trimmed)
+}
+
+// Using regex, check if the given text contains at least 1 Arabic character or Arabic numerals.(Taskheel not included)
+func ContainsArabic(text string) bool {
+	aRegex := regexp.MustCompile(`\p{Arabic}`)
+	return aRegex.MatchString(text)
+}
+
+// Using regex, check if the given text contains only Arabic characters,Arabic numerals, and White spaces. (Taskheel not included)
+func IsArabic(text string) bool {
+	aRegex := regexp.MustCompile(`^[\p{Arabic} ]+$`)
+	return aRegex.MatchString(text)
 }
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
