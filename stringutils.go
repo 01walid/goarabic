@@ -1,6 +1,12 @@
 // Package goarabic contains utility functions for working with Arabic strings.
 package goarabic
 
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
 // Reverse returns its argument string reversed rune-wise left to right.
 func Reverse(s string) string {
 	r := []rune(s)
@@ -79,7 +85,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Beggining
 				}
@@ -93,7 +99,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn { // final (because the next is not in the Arabic Alphabet)
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Isolated
 				}
@@ -188,6 +194,62 @@ func ToGlyph(text string) string {
 	}
 
 	return string(newText)
+}
+
+//Convert large number to its abbreviation in Arabic.
+//Abbreviate to billons, millions, and thousands. Otherwise number will be returned unedited.
+func AbbreviateNumber(lint int) string {
+	// Ported from https://stackoverflow.com/a/14994860
+	nTxt := ""
+	if lint >= 1000000000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000000000)
+		return strings.Replace(nTxt, ".0", "", -1) + " مليار"
+	} else if lint >= 1000000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000000)
+		return strings.Replace(nTxt, ".0", "", -1) + " مليون"
+	} else if lint >= 1000 {
+		nTxt = fmt.Sprintf("%.1f", float64(lint)/1000)
+		return strings.Replace(nTxt, ".0", "", -1) + " ألف"
+	}
+	return fmt.Sprintf("%d", lint)
+}
+
+// Switch between Arabic and English Numeral systems. Pass true to switch to Arabic.
+// If text contains other non numeral characters, it will be left intact.
+func SwitchNumeral(text string, toArabic bool) string {
+	if toArabic {
+		replaceEnglishN := strings.NewReplacer("1", "١", "2", "٢", "3", "٣", "4", "٤", "5", "٥", "6", "٦", "7", "٧", "8", "٨", "9", "٩", "0", "٠")
+		return replaceEnglishN.Replace(text)
+	} else {
+		replaceArabicN := strings.NewReplacer("١", "1", "٢", "2", "٣", "3", "٤", "4", "٥", "5", "٦", "6", "٧", "7", "٨", "8", "٩", "9", "٠", "0")
+		return replaceArabicN.Replace(text)
+	}
+}
+
+//General function to normalize Arabic text
+/*
+	- switch english to arabic numerals.
+	- remove tashkeel and tatweel.
+	- trim all leading and trailing white spaces.
+	- switch any "أإآ"" to "ا".
+	- switch any "ة" to "ه".
+*/
+func Normalize(text string) string {
+	trimmed := strings.TrimSpace(RemoveTashkeel(RemoveTatweel(SwitchNumeral(text, true))))
+	Normalizer := strings.NewReplacer("أ", "ا", "إ", "ا", "آ", "ا", "ة", "ه")
+	return Normalizer.Replace(trimmed)
+}
+
+// Using regex, check if the given text contains at least 1 Arabic character or Arabic numerals.(Taskheel not included)
+func ContainsArabic(text string) bool {
+	aRegex := regexp.MustCompile(`\p{Arabic}`)
+	return aRegex.MatchString(text)
+}
+
+// Using regex, check if the given text contains only Arabic characters,Arabic numerals, and White spaces. (Taskheel not included)
+func IsArabic(text string) bool {
+	aRegex := regexp.MustCompile(`^[\p{Arabic} ]+$`)
+	return aRegex.MatchString(text)
 }
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
