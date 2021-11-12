@@ -107,3 +107,36 @@ func TestRemoveAllNonArabicChars(t *testing.T) {
 		}
 	}
 }
+
+func eqArr(a1, a2 []_range) bool {
+	if len(a1) != len(a2) {
+		return false
+	}
+
+	for i := 0; i < len(a1); i++ {
+		if a1[i].start != a2[i].start && a1[i].end != a2[i].end {
+			return false
+		}
+	}
+
+	return true
+}
+
+func TestGetArabicCharsIndexes(t *testing.T) {
+	cases := []struct {
+		in, want   string
+	}{
+		{"نص عربي", "يبرع صن"},
+		{"السلام عليكم", "مكيلع مالسلا"},
+		{"مرhبا يا friends اصدقاء", "ءاقدصا friends اي ابhرم"},
+		{"Hello World!", "Hello World!"},
+	}
+
+	for _, c := range cases {
+		out := ReverseArabicChars(c.in)
+		if out != c.want {
+			t.Errorf("getArabicCharsRanges(%s) == %s, want %s\n", c.in, out, c.want)
+		}
+	}
+
+}
