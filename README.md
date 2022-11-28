@@ -5,7 +5,7 @@
 A Go Lang package for dealing with Arabic text.
 
 This is an initial work on a set of Go functions developed to enhance Arabic web applications.
-It all started when I wanted to develop a self-hosted no-dependency and standalone Arabic Captcha in Go (for fun, as I'm discovering Go), and as expected, the Arabic text wasn't rendered as it should:
+It all started when I wanted to develop a self-hosted no-dependency and standalone Arabic Captcha in Go (for fun, as I was discovering Go ~8 yrs ago), and as expected, the Arabic text wasn't rendered as it should:
 
 ![Before processing](https://res.cloudinary.com/walid/image/upload/v1429186546/before_pcyoha.png)
 
