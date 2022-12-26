@@ -10,6 +10,61 @@ func Reverse(s string) string {
 	return string(r)
 }
 
+// ReverseArabicChars returns a string reversed
+func ReverseArabicChars(s string) string {
+	s = Reverse(s)
+
+	var (
+		arabicChars = getNonArabicCharsRanges(s)
+		runes       = []rune(s)
+	)
+
+	for _, c := range arabicChars {
+		after := runes[c.end+1:]
+		runes = append(runes[0:c.start], []rune(Reverse(string(runes[c.start:c.end+1])))...)
+		runes = append(runes, after...)
+	}
+
+	return string(runes)
+}
+
+type _range struct {
+	start, end int
+}
+
+// getNonArabicCharsRanges returns ranges of the string where non arabic characters exist!
+func getNonArabicCharsRanges(s string) []_range {
+	var (
+		start, end  = 0, 0
+		indexes     = []_range{}
+		foundArabic = false
+	)
+
+	i := 0
+	for _, c := range s {
+		if !isArabicChar(c) {
+			if !foundArabic {
+				start = i
+				foundArabic = true
+			}
+		} else {
+			end = i - 1
+			if end > start {
+				indexes = append(indexes, _range{start, end})
+			}
+			start = i
+			foundArabic = false
+		}
+		i++
+	}
+
+	if len(indexes) == 0 || indexes[len(indexes)-1].end != len(s)-1 {
+		indexes = append(indexes, _range{start, i - 1})
+	}
+
+	return indexes
+}
+
 // SmartLength returns the length of the given string
 // without considering the Arabic Vowels (Tashkeel).
 func SmartLength(s *string) int {
@@ -139,18 +194,22 @@ func getHarf(char rune) Harf {
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
+// isArabicChar checks whether the character is from the arabic alphabet or not
+func isArabicChar(chr rune) bool {
+	for _, c := range alphabet {
+		if c.equals(chr) {
+			return true
+		}
+	}
+	return false
+}
+
 //RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
 func RemoveAllNonArabicChars(text string) string {
 	runes := []rune(text)
 	newText := []rune{}
 	for _, current := range runes {
-		inAlphabet := false
-		for _, s := range alphabet {
-			if s.equals(current) {
-				inAlphabet = true
-			}
-		}
-		if inAlphabet {
+		if isArabicChar(current) {
 			newText = append(newText, current)
 		}
 	}
