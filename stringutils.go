@@ -83,7 +83,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Beggining
 				}
@@ -97,7 +97,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn { // final (because the next is not in the Arabic Alphabet)
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Isolated
 				}
@@ -145,9 +145,8 @@ func getHarf(char rune) Harf {
 
 // RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
 func RemoveAllNonArabicChars(text string) string {
-	runes := []rune(text)
 	newText := []rune{}
-	for _, current := range runes {
+	for _, current := range text {
 		inAlphabet := false
 		for _, s := range alphabet {
 			if s.equals(current) {
