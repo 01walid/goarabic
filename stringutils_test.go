@@ -66,6 +66,7 @@ func TestToGlyph(t *testing.T) {
 		want string
 	}{
 		{"تجربة النص العربي", "\ufe97\ufea0\ufeae\ufe91\ufe94 \u0627\ufedf\ufee8\ufeba \u0627\ufedf\ufecc\ufeae\ufe91\ufef2"},
+		{"0123456789", "\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669"},
 		{"", ""},
 	}
 	for _, c := range cases {

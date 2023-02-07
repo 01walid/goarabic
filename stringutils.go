@@ -62,6 +62,10 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 	previousIn := false // in the Arabic Alphabet or not
 	nextIn := false     // in the Arabic Alphabet or not
 
+	if number, ok := numeric[currentChar]; ok {
+		return number
+	}
+
 	for _, s := range alphabet {
 		if s.equals(previousChar) { // previousChar in the Arabic Alphabet ?
 			previousIn = true
@@ -139,7 +143,7 @@ func getHarf(char rune) Harf {
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
-//RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
+// RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
 func RemoveAllNonArabicChars(text string) string {
 	runes := []rune(text)
 	newText := []rune{}
