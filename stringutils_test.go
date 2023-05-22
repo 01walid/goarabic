@@ -66,6 +66,7 @@ func TestToGlyph(t *testing.T) {
 		want string
 	}{
 		{"تجربة النص العربي", "\ufe97\ufea0\ufeae\ufe91\ufe94 \u0627\ufedf\ufee8\ufeba \u0627\ufedf\ufecc\ufeae\ufe91\ufef2"},
+		{"تجربة لا النص العربي", "\ufe97\ufea0\ufeae\ufe91\ufe94 \ufefb \u0627\ufedf\ufee8\ufeba \u0627\ufedf\ufecc\ufeae\ufe91\ufef2"},
 		{"۰۱۲۳۴۵۶۷۸۹", "۰۱۲۳۴۵۶۷۸۹"},
 		{"0123456789", "۰۱۲۳۴۵۶۷۸۹"},
 		{"0123456789", "۰۱۲۳۴۵۶۷۸۹"},

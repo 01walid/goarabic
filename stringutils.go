@@ -84,6 +84,25 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 			continue
 		}
 
+		if currentChar == LAM.Unicode {
+			if nextChar == ALEF.Unicode {
+				if previousIn {
+					return LAM_ALEF.Medium
+				}
+				return LAM_ALEF.Beggining
+			}
+			if nextChar == ALEF_HAMZA_ABOVE.Unicode {
+				if previousIn {
+					return LAM_ALEF_HAMZA_ABOVE.Medium
+				}
+				return LAM_ALEF_HAMZA_ABOVE.Beggining
+			}
+		}
+
+		if previousChar == LAM.Unicode && (currentChar == ALEF.Unicode || currentChar == ALEF_HAMZA_ABOVE.Unicode) {
+			return 0
+		}
+
 		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
 			for s := range beggining_after {
 				if s.equals(previousChar) {
@@ -164,13 +183,16 @@ func RemoveAllNonArabicChars(text string) string {
 
 // FixArabic searches for arabic words in text and fix their presentation form
 func FixArabic(text string) string {
+	if len(text) == 0 {
+		return text
+	}
 	var sb strings.Builder
 	fillIsArabicMap()
 	words := strings.Fields(text)
 	for _, word := range words {
 		runes := []rune(word)
 		if isArabic[runes[0]] {
-			sb.WriteString(ToGlyph(word))
+			sb.WriteString(Reverse(ToGlyph(word)))
 		} else {
 			sb.WriteString(word)
 		}
@@ -205,6 +227,9 @@ func ToGlyph(text string) string {
 
 		// get the current char representation or return the same if unnecessary
 		glyph := getCharGlyph(prev, current, next)
+		if glyph == 0 {
+			continue
+		}
 
 		// append the new char representation to the newText
 		newText = append(newText, glyph)
