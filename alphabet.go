@@ -384,9 +384,32 @@ var alphabet = []Harf{
 }
 
 // use map for faster lookups.
-var tashkeel = map[rune]bool{FATHA: true, FATHATAN: true, DAMMA: true,
-	DAMMATAN: true, KASRA: true, KASRATAN: true,
-	SHADDA: true, SUKUN: true}
+var tashkeel = map[rune]bool{
+	FATHA:    true,
+	FATHATAN: true,
+	DAMMA:    true,
+	DAMMATAN: true,
+	KASRA:    true,
+	KASRATAN: true,
+	SHADDA:   true,
+	SUKUN:    true,
+}
+
+var isArabic map[rune]bool
+
+func fillIsArabicMap() {
+	if len(isArabic) != 0 {
+		return
+	}
+	isArabic = make(map[rune]bool, len(alphabet)*5)
+	for _, harf := range alphabet {
+		isArabic[harf.Beggining] = true
+		isArabic[harf.Final] = true
+		isArabic[harf.Isolated] = true
+		isArabic[harf.Medium] = true
+		isArabic[harf.Unicode] = true
+	}
+}
 
 // use map for faster lookups.
 // var special_char = map[rune]bool{"": true, ' ': true, '?': true,

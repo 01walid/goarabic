@@ -1,6 +1,8 @@
 // Package goarabic contains utility functions for working with Arabic strings.
 package goarabic
 
+import "strings"
+
 // Reverse returns its argument string reversed rune-wise left to right.
 func Reverse(s string) string {
 	r := []rune(s)
@@ -158,6 +160,24 @@ func RemoveAllNonArabicChars(text string) string {
 		}
 	}
 	return string(newText)
+}
+
+// FixArabic searches for arabic words in text and fix their presentation form
+func FixArabic(text string) string {
+	var sb strings.Builder
+	fillIsArabicMap()
+	words := strings.Fields(text)
+	for _, word := range words {
+		runes := []rune(word)
+		if isArabic[runes[0]] {
+			sb.WriteString(ToGlyph(word))
+		} else {
+			sb.WriteString(word)
+		}
+		sb.WriteString(" ")
+	}
+	len := sb.Len()
+	return sb.String()[:len-1] //remove trailing space
 }
 
 // ToGlyph returns the glyph representation of the given text
