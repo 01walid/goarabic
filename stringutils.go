@@ -189,17 +189,21 @@ func FixArabic(text string) string {
 	var sb strings.Builder
 	fillIsArabicMap()
 	words := strings.Fields(text)
+	fixedWords := make([]string, 0)
 	for _, word := range words {
 		runes := []rune(word)
 		if isArabic[runes[0]] {
-			sb.WriteString(Reverse(ToGlyph(word)))
+			fixedWords = append(fixedWords, Reverse(ToGlyph(word)))
 		} else {
-			sb.WriteString(word)
+			fixedWords = append(fixedWords, word)
 		}
-		sb.WriteString(" ")
 	}
-	len := sb.Len()
-	return sb.String()[:len-1] //remove trailing space
+	for i := len(words) - 1; i >= 0; i-- {
+		sb.WriteString(" ")
+		sb.WriteString(fixedWords[i])
+	}
+	//len := sb.Len()
+	return sb.String()[1:] //remove trailing space
 }
 
 // ToGlyph returns the glyph representation of the given text

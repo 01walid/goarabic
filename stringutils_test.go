@@ -86,8 +86,8 @@ func TestFixArabic(t *testing.T) {
 		in   string
 		want string
 	}{
-		{"تجربة text العربي", "ﺗﺠﺮﺑﺔ text اﻟﻌﺮﺑﻲ"},
-		{"Sample جمله english", "Sample ﺟﻤﻠﻪ english"},
+		{"تجربة text العربي", "ﻲﺑﺮﻌﻟا text ﺔﺑﺮﺠﺗ"},
+		{"Sample جمله english", "english ﻪﻠﻤﺟ Sample"},
 	}
 	for _, c := range cases {
 		got := FixArabic(c.in)
