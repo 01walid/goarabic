@@ -1,13 +1,24 @@
 // Package goarabic contains utility functions for working with Arabic strings.
 package goarabic
 
+import (
+	"strings"
+	"unicode/utf8"
+)
+
 // Reverse returns its argument string reversed rune-wise left to right.
 func Reverse(s string) string {
-	r := []rune(s)
-	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
-		r[i], r[j] = r[j], r[i]
+	var b strings.Builder
+	b.Grow(len(s) * 2)
+
+	for len(s) > 0 {
+		r, size := utf8.DecodeLastRuneInString(s)
+		b.WriteRune(r)
+
+		s = s[:len(s)-size]
 	}
-	return string(r)
+
+	return b.String()
 }
 
 // SmartLength returns the length of the given string
@@ -17,7 +28,7 @@ func SmartLength(s *string) int {
 	length := 0
 
 	for _, value := range *s {
-		if tashkeel[value] {
+		if _, ok := tashkeel[value]; ok {
 			continue
 		}
 		length++
@@ -28,33 +39,32 @@ func SmartLength(s *string) int {
 
 // RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
 func RemoveTashkeel(s string) string {
-	// var r []rune
-	// the capcity of the slice wont be greater than the length of the string itself
-	// hence, cap = len(s)
-	r := make([]rune, 0, len(s))
+	var b strings.Builder
+	b.Grow(len(s) * 2)
 
 	for _, value := range s {
-		if tashkeel[value] {
+		if _, ok := tashkeel[value]; ok {
 			continue
 		}
-		r = append(r, value)
+		b.WriteRune(value)
 	}
 
-	return string(r)
+	return b.String()
 }
 
 // RemoveTatweel returns its argument as rune-wise string without Arabic Tatweel character.
 func RemoveTatweel(s string) string {
-	r := make([]rune, 0, len(s))
+	var b strings.Builder
+	b.Grow(len(s) * 2)
 
 	for _, value := range s {
-		if TATWEEL.equals(value) {
+		if tatweelRune == value {
 			continue
 		}
-		r = append(r, value)
+		b.WriteRune(value)
 	}
 
-	return string(r)
+	return b.String()
 }
 
 func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
@@ -62,41 +72,33 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 	previousIn := false // in the Arabic Alphabet or not
 	nextIn := false     // in the Arabic Alphabet or not
 
-	for _, s := range alphabet {
-		if s.equals(previousChar) { // previousChar in the Arabic Alphabet ?
-			previousIn = true
-		}
-
-		if s.equals(nextChar) { // nextChar in the Arabic Alphabet ?
-			nextIn = true
-		}
+	if _, ok := runeAlphabetMap[previousChar]; ok {
+		// previousChar in the Arabic Alphabet ?
+		previousIn = true
 	}
 
-	for _, s := range alphabet {
+	if _, ok := runeAlphabetMap[nextChar]; ok {
+		// nextChar in the Arabic Alphabet ?
+		nextIn = true
+	}
 
-		if !s.equals(currentChar) { // currentChar in the Arabic Alphabet ?
-			continue
-		}
+	if _, ok := runeAlphabetMap[currentChar]; ok {
+		// currentChar in the Arabic Alphabet ?
 
-		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
-			for s, _ := range beggining_after {
-				if s.equals(previousChar) {
-					return getHarf(currentChar).Beggining
-				}
+		if previousIn && nextIn { // between two Arabic Alphabet, return the Medium glyph
+			if _, ok := runeBeginningAfter[previousChar]; ok {
+				return getHarf(currentChar).Beginning
 			}
-
 			return getHarf(currentChar).Medium
 		}
 
-		if nextIn { // beginning (because the previous is not in the Arabic Alphabet)
-			return getHarf(currentChar).Beggining
+		if nextIn { // Beginning (because the previous is not in the Arabic Alphabet)
+			return getHarf(currentChar).Beginning
 		}
 
-		if previousIn { // final (because the next is not in the Arabic Alphabet)
-			for s, _ := range beggining_after {
-				if s.equals(previousChar) {
-					return getHarf(currentChar).Isolated
-				}
+		if previousIn { // Final (because the next is not in the Arabic Alphabet)
+			if _, ok := runeBeginningAfter[previousChar]; ok {
+				return getHarf(currentChar).Isolated
 			}
 			return getHarf(currentChar).Final
 		}
@@ -104,108 +106,80 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		if !previousIn && !nextIn {
 			return getHarf(currentChar).Isolated
 		}
-
 	}
+
 	return glyph
-}
-
-// equals() return if true if the given Arabic char is alphabetically equal to
-// the current Harf regardless its shape (Glyph)
-func (c *Harf) equals(char rune) bool {
-	switch char {
-	case c.Unicode:
-		return true
-	case c.Beggining:
-		return true
-	case c.Isolated:
-		return true
-	case c.Medium:
-		return true
-	case c.Final:
-		return true
-	default:
-		return false
-	}
 }
 
 // getHarf gets the correspondent Harf for the given Arabic char
 func getHarf(char rune) Harf {
-	for _, s := range alphabet {
-		if s.equals(char) {
-			return s
-		}
+	if h, ok := runeAlphabetMap[char]; ok {
+		return h
 	}
-
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
-//RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
+// RemoveAllNonArabicChars deletes all characters which are not included in Arabic Alphabet
 func RemoveAllNonArabicChars(text string) string {
-	runes := []rune(text)
-	newText := []rune{}
-	for _, current := range runes {
-		inAlphabet := false
-		for _, s := range alphabet {
-			if s.equals(current) {
-				inAlphabet = true
-			}
+	var b strings.Builder
+	b.Grow(len(text) * 2)
+
+	for len(text) > 0 {
+		current, size := utf8.DecodeRuneInString(text)
+		if _, ok := runeAlphabetMap[current]; ok {
+			b.WriteRune(current)
 		}
-		if inAlphabet {
-			newText = append(newText, current)
-		}
+		text = text[size:]
 	}
-	return string(newText)
+
+	return b.String()
 }
 
 // ToGlyph returns the glyph representation of the given text
 func ToGlyph(text string) string {
-	var prev, next rune
+	var b strings.Builder
+	b.Grow(len(text) * 2)
 
-	runes := []rune(text)
-	length := len(runes)
-	newText := make([]rune, 0, length)
+	var previousChar, currentChar, nextChar rune
+	var size int
 
-	for i, current := range runes {
-		// get the previous char
-		if (i - 1) < 0 {
-			prev = 0
-		} else {
-			prev = runes[i-1]
+	for len(text) > 0 {
+		currentChar, size = utf8.DecodeRuneInString(text)
+
+		// currentChar == alif
+		if currentChar == '\u0627' {
+			// change الله to unicode character ﷲ
+			if len(text) >= 8 && text[:8] == "\u0627\u0644\u0644\u0647" {
+				b.WriteRune('\ufdf2')
+				previousChar = '\u0647'
+				//totalSize += 8
+				text = text[8:]
+				continue
+			}
 		}
 
-		// get the next char
-		if (i + 1) <= length-1 {
-			next = runes[i+1]
-		} else {
-			next = 0
+		text = text[size:]
+
+		nextChar, _ = utf8.DecodeRuneInString(text)
+
+		curHarf := runeAlphabetMap[currentChar]
+		nextHarf := runeAlphabetMap[nextChar]
+		if curHarf == LAM && nextHarf == ALEF {
+			// replace lam and alef to lam alef rune
+			b.WriteRune(LAM_ALEF.Unicode)
+			previousChar = LAM_ALEF.Unicode
+			text = text[2:]
+			continue
 		}
 
 		// get the current char representation or return the same if unnecessary
-		glyph := getCharGlyph(prev, current, next)
+		glyph := getCharGlyph(previousChar, currentChar, nextChar)
 
-		// append the new char representation to the newText
-		newText = append(newText, glyph)
+		// write the new char representation
+		b.WriteRune(glyph)
+
+		previousChar = currentChar
 	}
 
-	return string(newText)
+	return b.String()
 }
-
-// RemoveTashkeel returns its argument as rune-wise string without Arabic vowels (Tashkeel).
-/*
-func RemoveTashkeelExtended(s string) string {
-	r := []rune(s)
-
-	m := map[string]bool{"\u064e": true, "\u064b": true, "\u064f": true,
-		"\u064c": true, "\u0650": true, "\u064d": true,
-		"\u0651": true, "\u0652": true}
-
-	for key, value := range s {
-		if m[value] {
-			continue
-		}
-		r[key] = value
-	}
-
-	return string(r)
-}
-*/
