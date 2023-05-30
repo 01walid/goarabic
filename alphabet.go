@@ -110,7 +110,7 @@ var (
 		Medium:    '\ufea0',
 		Final:     '\ufe9e'}
 
-	TCHEH = Harf{ // چ
+	CHEH = Harf{ // چ
 		Unicode:   '\u0686',
 		Isolated:  '\ufb7a',
 		Beggining: '\ufb7c',
@@ -152,20 +152,19 @@ var (
 		Medium:    '\ufeae',
 		Final:     '\ufeae'}
 
-	JEH = Harf{
-		Unicode:   '\u0698',
-		Isolated:  '\ufb8a',
-		Beggining: '\u0698',
-		Medium:    '\ufb8b',
-		Final:     '\ufb8b',
-	}
-
 	ZAIN = Harf{ // ز
 		Unicode:   '\u0632',
 		Isolated:  '\ufeaf',
 		Beggining: '\u0632',
 		Medium:    '\ufeb0',
 		Final:     '\ufeb0'}
+
+	ZHEH = Harf{ // ژ
+		Unicode:   '\u0698',
+		Isolated:  '\ufb8a',
+		Beggining: '\ufb8a',
+		Medium:    '\ufb8b',
+		Final:     '\ufb8b'}
 
 	SEEN = Harf{ // س
 		Unicode:   '\u0633',
@@ -244,16 +243,15 @@ var (
 		Medium:    '\ufedc',
 		Final:     '\ufeda'}
 
-	KEHEH = Harf{ // ک
+	KEH = Harf{ // ک
 		Unicode:   '\u06a9',
 		Isolated:  '\ufb8e',
 		Beggining: '\ufb90',
 		Medium:    '\ufb91',
-		Final:     '\ufb8f',
-	}
+		Final:     '\ufb8f'}
 
 	GAF = Harf{ // گ
-		Unicode:   '\u06af',
+		Unicode:   '\u06AF',
 		Isolated:  '\ufb92',
 		Beggining: '\ufb94',
 		Medium:    '\ufb95',
@@ -294,25 +292,25 @@ var (
 		Medium:    '\ufeee',
 		Final:     '\ufeee'}
 
-	YEH = Harf{ // ی
-		Unicode:   '\u06cc',
-		Isolated:  '\ufbfc',
-		Beggining: '\ufbfe',
-		Medium:    '\ufbff',
-		Final:     '\ufbfd'}
-
-	ARABICYEH = Harf{ // ي
+	YEH = Harf{ // ي
 		Unicode:   '\u064a',
 		Isolated:  '\ufef1',
 		Beggining: '\ufef3',
 		Medium:    '\ufef4',
 		Final:     '\ufef2'}
 
+	YEH_DOT_BELOW = Harf{ // ي
+		Unicode:   '\u06cc',
+		Isolated:  '\ufeef',
+		Beggining: '\ufef3',
+		Medium:    '\ufef4',
+		Final:     '\ufef0'}
+
 	ALEF_MAKSURA = Harf{ // ى
 		Unicode:   '\u0649',
 		Isolated:  '\ufeef',
-		Beggining: '\u0649',
-		Medium:    '\ufef0',
+		Beggining: '\ufef3',
+		Medium:    '\ufef4',
 		Final:     '\ufef0'}
 
 	TATWEEL = Harf{ // ـ
@@ -345,20 +343,21 @@ var alphabet = []Harf{
 	WAW_HAMZA_ABOVE,
 	ALEF_HAMZA_BELOW,
 	YEH_HAMZA_ABOVE,
+	YEH_DOT_BELOW,
 	BEH,
 	PEH,
 	TEH,
 	TEH_MARBUTA,
 	THEH,
 	JEEM,
-	TCHEH,
+	CHEH,
 	HAH,
 	KHAH,
 	DAL,
 	THAL,
 	REH,
-	JEH,
 	ZAIN,
+	ZHEH,
 	SEEN,
 	SHEEN,
 	SAD,
@@ -370,7 +369,7 @@ var alphabet = []Harf{
 	FEH,
 	QAF,
 	KAF,
-	KEHEH,
+	KEH,
 	GAF,
 	LAM,
 	MEEM,
@@ -378,7 +377,6 @@ var alphabet = []Harf{
 	HEH,
 	WAW,
 	YEH,
-	ARABICYEH,
 	ALEF_MAKSURA,
 	TATWEEL,
 	LAM_ALEF,
@@ -386,9 +384,32 @@ var alphabet = []Harf{
 }
 
 // use map for faster lookups.
-var tashkeel = map[rune]bool{FATHA: true, FATHATAN: true, DAMMA: true,
-	DAMMATAN: true, KASRA: true, KASRATAN: true,
-	SHADDA: true, SUKUN: true}
+var tashkeel = map[rune]bool{
+	FATHA:    true,
+	FATHATAN: true,
+	DAMMA:    true,
+	DAMMATAN: true,
+	KASRA:    true,
+	KASRATAN: true,
+	SHADDA:   true,
+	SUKUN:    true,
+}
+
+var isArabic map[rune]bool
+
+func fillIsArabicMap() {
+	if len(isArabic) != 0 {
+		return
+	}
+	isArabic = make(map[rune]bool, len(alphabet)*5)
+	for _, harf := range alphabet {
+		isArabic[harf.Beggining] = true
+		isArabic[harf.Final] = true
+		isArabic[harf.Isolated] = true
+		isArabic[harf.Medium] = true
+		isArabic[harf.Unicode] = true
+	}
+}
 
 // use map for faster lookups.
 // var special_char = map[rune]bool{"": true, ' ': true, '?': true,
@@ -408,5 +429,19 @@ var beggining_after = map[Harf]bool{
 	THAL:             true,
 	REH:              true,
 	ZAIN:             true,
+	ZHEH:             true,
 	WAW:              true,
 	ALEF_MAKSURA:     true}
+
+var numeric = map[rune]rune{
+	'0': '\u06F0',
+	'1': '\u06F1',
+	'2': '\u06F2',
+	'3': '\u06F3',
+	'4': '\u06F4',
+	'5': '\u06F5',
+	'6': '\u06F6',
+	'7': '\u06F7',
+	'8': '\u06F8',
+	'9': '\u06F9',
+}

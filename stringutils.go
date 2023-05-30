@@ -1,6 +1,8 @@
 // Package goarabic contains utility functions for working with Arabic strings.
 package goarabic
 
+import "strings"
+
 // Reverse returns its argument string reversed rune-wise left to right.
 func Reverse(s string) string {
 	r := []rune(s)
@@ -62,6 +64,10 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 	previousIn := false // in the Arabic Alphabet or not
 	nextIn := false     // in the Arabic Alphabet or not
 
+	if number, ok := numeric[currentChar]; ok {
+		return number
+	}
+
 	for _, s := range alphabet {
 		if s.equals(previousChar) { // previousChar in the Arabic Alphabet ?
 			previousIn = true
@@ -78,8 +84,27 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 			continue
 		}
 
+		if currentChar == LAM.Unicode {
+			if nextChar == ALEF.Unicode {
+				if previousIn {
+					return LAM_ALEF.Medium
+				}
+				return LAM_ALEF.Beggining
+			}
+			if nextChar == ALEF_HAMZA_ABOVE.Unicode {
+				if previousIn {
+					return LAM_ALEF_HAMZA_ABOVE.Medium
+				}
+				return LAM_ALEF_HAMZA_ABOVE.Beggining
+			}
+		}
+
+		if previousChar == LAM.Unicode && (currentChar == ALEF.Unicode || currentChar == ALEF_HAMZA_ABOVE.Unicode) {
+			return 0
+		}
+
 		if previousIn && nextIn { // between two Arabic Alphabet, return the medium glyph
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Beggining
 				}
@@ -93,7 +118,7 @@ func getCharGlyph(previousChar, currentChar, nextChar rune) rune {
 		}
 
 		if previousIn { // final (because the next is not in the Arabic Alphabet)
-			for s, _ := range beggining_after {
+			for s := range beggining_after {
 				if s.equals(previousChar) {
 					return getHarf(currentChar).Isolated
 				}
@@ -139,11 +164,10 @@ func getHarf(char rune) Harf {
 	return Harf{Unicode: char, Isolated: char, Medium: char, Final: char}
 }
 
-//RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
+// RemoveAllNonAlphabetChars deletes all characters which are not included in Arabic Alphabet
 func RemoveAllNonArabicChars(text string) string {
-	runes := []rune(text)
 	newText := []rune{}
-	for _, current := range runes {
+	for _, current := range text {
 		inAlphabet := false
 		for _, s := range alphabet {
 			if s.equals(current) {
@@ -155,6 +179,31 @@ func RemoveAllNonArabicChars(text string) string {
 		}
 	}
 	return string(newText)
+}
+
+// FixArabic searches for arabic words in text and fix their presentation form
+func FixArabic(text string) string {
+	if len(text) == 0 {
+		return text
+	}
+	var sb strings.Builder
+	fillIsArabicMap()
+	words := strings.Fields(text)
+	fixedWords := make([]string, 0)
+	for _, word := range words {
+		runes := []rune(word)
+		if isArabic[runes[0]] {
+			fixedWords = append(fixedWords, Reverse(ToGlyph(word)))
+		} else {
+			fixedWords = append(fixedWords, word)
+		}
+	}
+	for i := len(words) - 1; i >= 0; i-- {
+		sb.WriteString(" ")
+		sb.WriteString(fixedWords[i])
+	}
+	//len := sb.Len()
+	return sb.String()[1:] //remove trailing space
 }
 
 // ToGlyph returns the glyph representation of the given text
@@ -182,6 +231,9 @@ func ToGlyph(text string) string {
 
 		// get the current char representation or return the same if unnecessary
 		glyph := getCharGlyph(prev, current, next)
+		if glyph == 0 {
+			continue
+		}
 
 		// append the new char representation to the newText
 		newText = append(newText, glyph)

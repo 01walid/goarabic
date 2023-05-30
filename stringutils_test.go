@@ -66,12 +66,33 @@ func TestToGlyph(t *testing.T) {
 		want string
 	}{
 		{"تجربة النص العربي", "\ufe97\ufea0\ufeae\ufe91\ufe94 \u0627\ufedf\ufee8\ufeba \u0627\ufedf\ufecc\ufeae\ufe91\ufef2"},
+		{"تجربة لا النص العربي", "\ufe97\ufea0\ufeae\ufe91\ufe94 \ufefb \u0627\ufedf\ufee8\ufeba \u0627\ufedf\ufecc\ufeae\ufe91\ufef2"},
+		{"۰۱۲۳۴۵۶۷۸۹", "۰۱۲۳۴۵۶۷۸۹"},
+		{"0123456789", "۰۱۲۳۴۵۶۷۸۹"},
+		{"0123456789", "۰۱۲۳۴۵۶۷۸۹"},
 		{"", ""},
+		{"Sample english", "Sample english"},
 	}
 	for _, c := range cases {
 		got := ToGlyph(c.in)
 		if got != c.want {
 			t.Errorf("ToGlyph(...) got %q, want %+q", got, c.want)
+		}
+	}
+}
+
+func TestFixArabic(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"تجربة text العربي", "ﻲﺑﺮﻌﻟا text ﺔﺑﺮﺠﺗ"},
+		{"Sample جمله english", "english ﻪﻠﻤﺟ Sample"},
+	}
+	for _, c := range cases {
+		got := FixArabic(c.in)
+		if got != c.want {
+			t.Errorf("FixArabic(...) got %q, want %+q", got, c.want)
 		}
 	}
 }
